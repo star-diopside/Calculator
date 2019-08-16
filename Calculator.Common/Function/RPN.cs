@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RPN.Function
+namespace Calculator.Common.Function
 {
     /// <summary>
     /// 逆ポーランド記法への変換を行うクラス
     /// </summary>
-    public static class ReversePolishNotation
+    public static class RPN
     {
         /// <summary>
         /// 指定された式を逆ポーランド記法に変換する

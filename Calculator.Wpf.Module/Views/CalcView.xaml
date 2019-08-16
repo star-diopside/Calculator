@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="Calculator.Wpf.Module.Views.CalcView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Label HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0">入力式</Label>
+        <TextBox VerticalAlignment="Center" Margin="10,0" Grid.Row="0" Grid.Column="1" Text="{Binding Input.Value}" />
+        <Button VerticalAlignment="Center" Width="100" IsDefault="True" Grid.Row="0" Grid.Column="2" Command="{Binding AnalysisCommand}">解析(_A)</Button>
+        <Label HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">変換後</Label>
+        <TextBox VerticalAlignment="Center" Margin="10,0" Grid.Row="1" Grid.Column="1" Text="{Binding Transfer.Value}" />
+        <Button VerticalAlignment="Center" Width="100" Grid.Row="1" Grid.Column="2">計算(_C)</Button>
+        <Label HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0">計算結果</Label>
+        <TextBox VerticalAlignment="Center" Margin="10,0" Grid.Row="2" Grid.Column="1" Text="{Binding Result.Value}" />
+    </Grid>
+</UserControl>
