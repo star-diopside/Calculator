@@ -12,16 +12,20 @@ namespace Calculator.Common.Function
         /// 指定された式を逆ポーランド記法に変換する
         /// </summary>
         /// <param name="formula">変換する中置記法の式</param>
-        /// <returns>逆ポーランド記法に変換したトークンの配列</returns>
-        public static string[] Convert(string formula)
+        /// <returns>逆ポーランド記法に変換したトークンの列挙子</returns>
+        public static IEnumerable<string> Convert(string formula)
         {
-            List<string> analysisList = new List<string>();
-            Stack<string> operatorStack = new Stack<string>();
-            string token;
-            int index = 0;
-
-            while ((token = getToken(formula, ref index)) != null)
+            if (formula == null)
             {
+                throw new ArgumentNullException(nameof(formula));
+            }
+
+            var operatorStack = new Stack<string>();
+
+            foreach (string t in GetTokens(formula))
+            {
+                string token = t;
+
                 //
                 // 単項演算子の判定
                 //
@@ -47,7 +51,7 @@ namespace Calculator.Common.Function
                 //
                 // 優先度を判定し、変換処理を行う。
                 //
-                if (operatorStack.Count == 0 || getTokenPriority(token) > getTokenPriority(operatorStack.Peek()))
+                if (operatorStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(operatorStack.Peek()))
                 {
                     operatorStack.Push(token);
                 }
@@ -60,7 +64,7 @@ namespace Calculator.Common.Function
 
                     while (operatorStack.Peek() != "(")
                     {
-                        analysisList.Add(operatorStack.Pop());
+                        yield return operatorStack.Pop();
 
                         if (operatorStack.Count == 0)
                         {
@@ -71,9 +75,9 @@ namespace Calculator.Common.Function
                 }
                 else
                 {
-                    while (operatorStack.Count > 0 && operatorStack.Peek() != "(" && getTokenPriority(token) <= getTokenPriority(operatorStack.Peek()))
+                    while (operatorStack.Count > 0 && operatorStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(operatorStack.Peek()))
                     {
-                        analysisList.Add(operatorStack.Pop());
+                        yield return operatorStack.Pop();
                     }
 
                     operatorStack.Push(token);
@@ -89,83 +93,63 @@ namespace Calculator.Common.Function
                     throw new FormatException();
                 }
 
-                analysisList.Add(item);
+                yield return item;
             }
-
-            return analysisList.ToArray();
         }
 
         /// <summary>
         /// 入力式の指定位置のトークンを取得する
         /// </summary>
         /// <param name="formula">変換元の式</param>
-        /// <param name="index">解析を開始するインデックスを指定する。解析後に次の解析開始位置に更新する。最後まで解析が完了した場合は -1 を返す。</param>
-        /// <returns>取得したトークン。解析が完了済みの場合は null を返す。</returns>
-        private static string getToken(string formula, ref int index)
+        /// <returns>取得したトークンの列挙子</returns>
+        private static IEnumerable<string> GetTokens(string formula)
         {
-            // formula に null が指定された、または index にマイナス値または formula の文字列長以上の値が設定された場合、
-            // index に -1 を設定し、nullを返す
-            if (formula == null || index < 0 || index >= formula.Length)
+            for (int i = 0; i < formula.Length; i++)
             {
-                index = -1;
-                return null;
-            }
+                char formulaChar = formula[i];
 
-            string token = null;
-
-            // 入力式を解析し、トークンを取得する
-            for (int i = index; i < formula.Length; i++)
-            {
-                if (char.IsWhiteSpace(formula, i) || char.IsControl(formula, i))
+                // 指定位置の文字が空白または制御文字の場合、スキップする
+                if (char.IsWhiteSpace(formulaChar) || char.IsControl(formulaChar))
                 {
-                    // 指定位置の文字が空白または制御文字の場合、スキップする
                     continue;
                 }
-                else if (formula[i] == '(' || formula[i] == ')')
+                // 括弧の場合
+                else if (formulaChar == '(' || formulaChar == ')')
                 {
-                    // 括弧の場合
-                    int startIndex = i;
-                    index = i + 1;
-                    return formula.Substring(startIndex, 1);
+                    yield return formulaChar.ToString();
                 }
-                else if (char.IsDigit(formula, i))
+                // 指定位置の文字が数字の場合
+                else if (char.IsDigit(formulaChar))
                 {
-                    // 指定位置の文字が数字の場合
                     int startIndex = i;
-                    int count = 1;
 
-                    while (i + count < formula.Length && char.IsDigit(formula, i + count))
+                    do
                     {
-                        count++;
+                        i++;
                     }
+                    while (i < formula.Length && char.IsDigit(formula[i]));
 
-                    index = i + count;
-                    return formula.Substring(startIndex, count);
+                    yield return formula[startIndex..i--];
                 }
-                else if (char.IsLetter(formula, i) || char.IsSurrogate(formula, i))
+                // 指定位置の文字がアルファベットの場合
+                else if (char.IsLetter(formulaChar) || char.IsSurrogate(formulaChar))
                 {
-                    // 指定位置の文字がアルファベットの場合
                     int startIndex = i;
-                    int count = 1;
 
-                    while (i + count < formula.Length && (char.IsLetterOrDigit(formula, i + count) || char.IsSurrogate(formula, i + count)))
+                    do
                     {
-                        count++;
+                        i++;
                     }
+                    while (i < formula.Length && (char.IsLetterOrDigit(formula[i]) || char.IsSurrogate(formula[i])));
 
-                    index = i + count;
-                    return formula.Substring(startIndex, count);
+                    yield return formula[startIndex..i--];
                 }
+                // 上記以外の場合
                 else
                 {
-                    // 上記以外の場合
-                    int startIndex = i;
-                    index = i + 1;
-                    return formula.Substring(startIndex, 1);
+                    yield return formulaChar.ToString();
                 }
             }
-
-            return token;
         }
 
         /// <summary>
@@ -173,9 +157,9 @@ namespace Calculator.Common.Function
         /// </summary>
         /// <param name="formula">優先度を求めるトークン文字列</param>
         /// <returns>指定されたトークンの優先度</returns>
-        private static int getTokenPriority(string token)
+        private static int GetTokenPriority(string token)
         {
-            if (char.IsLetterOrDigit(token, 0) || char.IsSurrogate(token, 0))
+            if (char.IsLetterOrDigit(token[0]) || char.IsSurrogate(token[0]))
             {
                 return int.MaxValue;
             }
