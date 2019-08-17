@@ -4,6 +4,7 @@ using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Unity;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Calculator.Wpf
 {
@@ -24,6 +25,12 @@ namespace Calculator.Wpf
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show(e.Exception.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            e.Handled = true;
         }
     }
 }

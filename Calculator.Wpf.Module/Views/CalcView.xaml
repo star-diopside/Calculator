@@ -19,7 +19,7 @@
         <Button VerticalAlignment="Center" Width="100" IsDefault="True" Grid.Row="0" Grid.Column="2" Command="{Binding AnalysisCommand}">解析(_A)</Button>
         <Label HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">変換後</Label>
         <TextBox VerticalAlignment="Center" Margin="10,0" Grid.Row="1" Grid.Column="1" Text="{Binding Transfer.Value}" />
-        <Button VerticalAlignment="Center" Width="100" Grid.Row="1" Grid.Column="2">計算(_C)</Button>
+        <Button VerticalAlignment="Center" Width="100" Grid.Row="1" Grid.Column="2" Command="{Binding CalculateCommand}">計算(_C)</Button>
         <Label HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0">計算結果</Label>
         <TextBox VerticalAlignment="Center" Margin="10,0" Grid.Row="2" Grid.Column="1" Text="{Binding Result.Value}" />
     </Grid>

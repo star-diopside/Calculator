@@ -1,6 +1,8 @@
 ﻿using Calculator.Wpf.Module.Models;
 using Prism.Commands;
 using Reactive.Bindings;
+using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Calculator.Wpf.Module.ViewModels
@@ -33,11 +35,19 @@ namespace Calculator.Wpf.Module.ViewModels
 
         private void Analysis()
         {
-            _model.Analysis();
+            try
+            {
+                _model.Analysis();
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("数式の書式が不正です。", "解析エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void Calculate()
         {
+            _model.Calculate();
         }
     }
 }

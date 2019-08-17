@@ -104,24 +104,27 @@ namespace Calculator.Common.Function
         /// <returns>取得したトークンの列挙子</returns>
         private static IEnumerable<string> GetTokens(string formula)
         {
-            for (int i = 0; i < formula.Length; i++)
+            int i = 0;
+
+            while (i < formula.Length)
             {
                 char formulaChar = formula[i];
 
                 // 指定位置の文字が空白または制御文字の場合、スキップする
                 if (char.IsWhiteSpace(formulaChar) || char.IsControl(formulaChar))
                 {
-                    continue;
+                    i++;
                 }
                 // 括弧の場合
                 else if (formulaChar == '(' || formulaChar == ')')
                 {
                     yield return formulaChar.ToString();
+                    i++;
                 }
                 // 指定位置の文字が数字の場合
                 else if (char.IsDigit(formulaChar))
                 {
-                    int startIndex = i;
+                    int start = i;
 
                     do
                     {
@@ -129,12 +132,12 @@ namespace Calculator.Common.Function
                     }
                     while (i < formula.Length && char.IsDigit(formula[i]));
 
-                    yield return formula[startIndex..i--];
+                    yield return formula[start..i];
                 }
                 // 指定位置の文字がアルファベットの場合
                 else if (char.IsLetter(formulaChar) || char.IsSurrogate(formulaChar))
                 {
-                    int startIndex = i;
+                    int start = i;
 
                     do
                     {
@@ -142,12 +145,13 @@ namespace Calculator.Common.Function
                     }
                     while (i < formula.Length && (char.IsLetterOrDigit(formula[i]) || char.IsSurrogate(formula[i])));
 
-                    yield return formula[startIndex..i--];
+                    yield return formula[start..i];
                 }
                 // 上記以外の場合
                 else
                 {
                     yield return formulaChar.ToString();
+                    i++;
                 }
             }
         }
