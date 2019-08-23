@@ -20,80 +20,85 @@ namespace Calculator.Common.Function
                 throw new ArgumentNullException(nameof(formula));
             }
 
-            var operatorStack = new Stack<string>();
+            return ConvertInternal();
 
-            foreach (string t in GetTokens(formula))
+            IEnumerable<string> ConvertInternal()
             {
-                string token = t;
+                var operatorStack = new Stack<string>();
 
-                //
-                // 単項演算子の判定
-                //
-                if (token == "+" || token == "-")
+                foreach (string t in GetTokens(formula))
                 {
-                    if (operatorStack.Count == 0)
+                    string token = t;
+
+                    //
+                    // 単項演算子の判定
+                    //
+                    if (token == "+" || token == "-")
                     {
-                        token += "@";
-                    }
-                    else
-                    {
-                        switch (operatorStack.Peek())
+                        if (operatorStack.Count == 0)
                         {
-                            case "(":
-                            case "*":
-                            case "/":
-                                token += "@";
-                                break;
+                            token += "@";
+                        }
+                        else
+                        {
+                            switch (operatorStack.Peek())
+                            {
+                                case "(":
+                                case "*":
+                                case "/":
+                                    token += "@";
+                                    break;
+                            }
                         }
                     }
-                }
 
-                //
-                // 優先度を判定し、変換処理を行う。
-                //
-                if (operatorStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(operatorStack.Peek()))
-                {
-                    operatorStack.Push(token);
-                }
-                else if (token == ")")
-                {
-                    if (operatorStack.Count == 0)
+                    //
+                    // 優先度を判定し、変換処理を行う。
+                    //
+                    if (operatorStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(operatorStack.Peek()))
                     {
-                        throw new FormatException();
+                        operatorStack.Push(token);
                     }
-
-                    while (operatorStack.Peek() != "(")
+                    else if (token == ")")
                     {
-                        yield return operatorStack.Pop();
-
                         if (operatorStack.Count == 0)
                         {
                             throw new FormatException();
                         }
+
+                        while (operatorStack.Peek() != "(")
+                        {
+                            yield return operatorStack.Pop();
+
+                            if (operatorStack.Count == 0)
+                            {
+                                throw new FormatException();
+                            }
+                        }
+                        operatorStack.Pop();
                     }
-                    operatorStack.Pop();
-                }
-                else
-                {
-                    while (operatorStack.Count > 0 && operatorStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(operatorStack.Peek()))
+                    else
                     {
-                        yield return operatorStack.Pop();
+                        while (operatorStack.Count > 0 && operatorStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(operatorStack.Peek()))
+                        {
+                            yield return operatorStack.Pop();
+                        }
+
+                        operatorStack.Push(token);
+                    }
+                }
+
+                while (operatorStack.Count > 0)
+                {
+                    string item = operatorStack.Pop();
+
+                    if (item == "(")
+                    {
+                        throw new FormatException();
                     }
 
-                    operatorStack.Push(token);
+                    yield return item;
                 }
-            }
-
-            while (operatorStack.Count > 0)
-            {
-                string item = operatorStack.Pop();
-
-                if (item == "(")
-                {
-                    throw new FormatException();
-                }
-
-                yield return item;
             }
         }
 
