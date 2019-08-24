@@ -163,7 +163,7 @@ namespace Calculator.Common.Function
                             }
                         }
 
-                        if (char.IsLetter(formulaChar) || char.IsSurrogate(formulaChar))
+                        if (char.IsLetter(formulaChar))
                         {
                             throw new FormatException();
                         }
@@ -176,7 +176,7 @@ namespace Calculator.Common.Function
                     yield return formula[start..i];
                 }
                 // 指定位置の文字がアルファベットの場合
-                else if (char.IsLetter(formulaChar) || char.IsSurrogate(formulaChar))
+                else if (char.IsLetter(formulaChar))
                 {
                     int start = i;
 
@@ -184,7 +184,7 @@ namespace Calculator.Common.Function
                     {
                         i++;
                     }
-                    while (i < formula.Length && (char.IsLetterOrDigit(formula[i]) || char.IsSurrogate(formula[i])));
+                    while (i < formula.Length && char.IsLetterOrDigit(formula[i]));
 
                     yield return formula[start..i];
                 }
