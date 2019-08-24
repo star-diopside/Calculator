@@ -163,7 +163,11 @@ namespace Calculator.Common.Function
                             }
                         }
 
-                        if (!char.IsDigit(formulaChar))
+                        if (char.IsLetter(formulaChar) || char.IsSurrogate(formulaChar))
+                        {
+                            throw new FormatException();
+                        }
+                        else if (!char.IsDigit(formulaChar))
                         {
                             break;
                         }
