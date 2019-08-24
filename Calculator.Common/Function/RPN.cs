@@ -137,12 +137,37 @@ namespace Calculator.Common.Function
                 else if (char.IsDigit(formulaChar))
                 {
                     int start = i;
+                    bool dotIncluded = false;
 
-                    do
+                    while (true)
                     {
                         i++;
+
+                        if (i >= formula.Length)
+                        {
+                            break;
+                        }
+
+                        formulaChar = formula[i];
+
+                        if (formulaChar == '.')
+                        {
+                            if (dotIncluded)
+                            {
+                                throw new FormatException();
+                            }
+                            else
+                            {
+                                dotIncluded = true;
+                                continue;
+                            }
+                        }
+
+                        if (!char.IsDigit(formulaChar))
+                        {
+                            break;
+                        }
                     }
-                    while (i < formula.Length && char.IsDigit(formula[i]));
 
                     yield return formula[start..i];
                 }
