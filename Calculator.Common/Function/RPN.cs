@@ -24,7 +24,7 @@ namespace Calculator.Common.Function
 
             IEnumerable<string> ConvertInternal()
             {
-                var operatorStack = new Stack<string>();
+                var tokenStack = new Stack<string>();
 
                 foreach (string t in GetTokens(formula))
                 {
@@ -35,19 +35,25 @@ namespace Calculator.Common.Function
                     //
                     if (token == "+" || token == "-")
                     {
-                        if (operatorStack.Count == 0)
+                        if (tokenStack.Count == 0)
                         {
                             token += "@";
                         }
                         else
                         {
-                            switch (operatorStack.Peek())
+                            switch (tokenStack.Peek())
                             {
-                                case "(":
+                                case "+":
+                                case "-":
                                 case "*":
                                 case "/":
+                                case "(":
                                     token += "@";
                                     break;
+
+                                case "+@":
+                                case "-@":
+                                    throw new FormatException();
                             }
                         }
                     }
@@ -55,42 +61,42 @@ namespace Calculator.Common.Function
                     //
                     // 優先度を判定し、変換処理を行う。
                     //
-                    if (operatorStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(operatorStack.Peek()))
+                    if (tokenStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(tokenStack.Peek()))
                     {
-                        operatorStack.Push(token);
+                        tokenStack.Push(token);
                     }
                     else if (token == ")")
                     {
-                        if (operatorStack.Count == 0)
+                        if (tokenStack.Count == 0)
                         {
                             throw new FormatException();
                         }
 
-                        while (operatorStack.Peek() != "(")
+                        while (tokenStack.Peek() != "(")
                         {
-                            yield return operatorStack.Pop();
+                            yield return tokenStack.Pop();
 
-                            if (operatorStack.Count == 0)
+                            if (tokenStack.Count == 0)
                             {
                                 throw new FormatException();
                             }
                         }
-                        operatorStack.Pop();
+                        tokenStack.Pop();
                     }
                     else
                     {
-                        while (operatorStack.Count > 0 && operatorStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(operatorStack.Peek()))
+                        while (tokenStack.Count > 0 && tokenStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(tokenStack.Peek()))
                         {
-                            yield return operatorStack.Pop();
+                            yield return tokenStack.Pop();
                         }
 
-                        operatorStack.Push(token);
+                        tokenStack.Push(token);
                     }
                 }
 
-                while (operatorStack.Count > 0)
+                while (tokenStack.Count > 0)
                 {
-                    string item = operatorStack.Pop();
+                    string item = tokenStack.Pop();
 
                     if (item == "(")
                     {
@@ -120,8 +126,9 @@ namespace Calculator.Common.Function
                 {
                     i++;
                 }
-                // 括弧の場合
-                else if (formulaChar == '(' || formulaChar == ')')
+                // 演算子の場合
+                else if (formulaChar == '+' || formulaChar == '-' || formulaChar == '*' || formulaChar == '/' ||
+                         formulaChar == '(' || formulaChar == ')')
                 {
                     yield return formulaChar.ToString();
                     i++;
@@ -155,8 +162,7 @@ namespace Calculator.Common.Function
                 // 上記以外の場合
                 else
                 {
-                    yield return formulaChar.ToString();
-                    i++;
+                    throw new FormatException();
                 }
             }
         }
