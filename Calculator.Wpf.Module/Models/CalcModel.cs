@@ -17,7 +17,7 @@ namespace Calculator.Wpf.Module.Models
 
         public void Analysis()
         {
-            Transfer.Value = string.Join(' ', RPN.Convert(Input.Value));
+            Transfer.Value = string.Join(' ', ReversePolishNotation.Convert(Input.Value));
         }
 
         public void Calculate()

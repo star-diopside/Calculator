@@ -6,7 +6,7 @@ namespace Calculator.Common.Function
     /// <summary>
     /// 逆ポーランド記法への変換を行うクラス
     /// </summary>
-    public static class RPN
+    public static class ReversePolishNotation
     {
         /// <summary>
         /// 指定された式を逆ポーランド記法に変換する
@@ -29,19 +29,16 @@ namespace Calculator.Common.Function
                 foreach (string t in GetTokens(formula))
                 {
                     string token = t;
+                    bool stackNotEmpty = tokenStack.TryPeek(out string peekToken);
 
                     //
                     // 単項演算子の判定
                     //
                     if (token == "+" || token == "-")
                     {
-                        if (tokenStack.Count == 0)
+                        if (stackNotEmpty)
                         {
-                            token += "@";
-                        }
-                        else
-                        {
-                            switch (tokenStack.Peek())
+                            switch (peekToken)
                             {
                                 case "+":
                                 case "-":
@@ -56,27 +53,35 @@ namespace Calculator.Common.Function
                                     throw new FormatException();
                             }
                         }
+                        else
+                        {
+                            token += "@";
+                        }
                     }
 
                     //
                     // 優先度を判定し、変換処理を行う。
                     //
-                    if (tokenStack.Count == 0 || GetTokenPriority(token) > GetTokenPriority(tokenStack.Peek()))
+                    if (!stackNotEmpty || GetTokenPriority(token) > GetTokenPriority(peekToken))
                     {
                         tokenStack.Push(token);
                     }
+                    else if (char.IsLetterOrDigit(token[0]) && char.IsLetterOrDigit(peekToken[0]))
+                    {
+                        throw new FormatException();
+                    }
                     else if (token == ")")
                     {
-                        if (tokenStack.Count == 0)
+                        if (!stackNotEmpty)
                         {
                             throw new FormatException();
                         }
 
-                        while (tokenStack.Peek() != "(")
+                        while (peekToken != "(")
                         {
                             yield return tokenStack.Pop();
 
-                            if (tokenStack.Count == 0)
+                            if (!tokenStack.TryPeek(out peekToken))
                             {
                                 throw new FormatException();
                             }
@@ -85,7 +90,7 @@ namespace Calculator.Common.Function
                     }
                     else
                     {
-                        while (tokenStack.Count > 0 && tokenStack.Peek() != "(" && GetTokenPriority(token) <= GetTokenPriority(tokenStack.Peek()))
+                        while (tokenStack.TryPeek(out peekToken) && peekToken != "(" && GetTokenPriority(token) <= GetTokenPriority(peekToken))
                         {
                             yield return tokenStack.Pop();
                         }
@@ -137,7 +142,7 @@ namespace Calculator.Common.Function
                 else if (char.IsDigit(formulaChar))
                 {
                     int start = i;
-                    bool dotIncluded = false;
+                    bool dotContains = false;
 
                     while (true)
                     {
@@ -152,13 +157,13 @@ namespace Calculator.Common.Function
 
                         if (formulaChar == '.')
                         {
-                            if (dotIncluded)
+                            if (dotContains)
                             {
                                 throw new FormatException();
                             }
                             else
                             {
-                                dotIncluded = true;
+                                dotContains = true;
                                 continue;
                             }
                         }
@@ -203,7 +208,7 @@ namespace Calculator.Common.Function
         /// <returns>指定されたトークンの優先度</returns>
         private static int GetTokenPriority(string token)
         {
-            if (char.IsLetterOrDigit(token[0]) || char.IsSurrogate(token[0]))
+            if (char.IsLetterOrDigit(token[0]))
             {
                 return int.MaxValue;
             }
