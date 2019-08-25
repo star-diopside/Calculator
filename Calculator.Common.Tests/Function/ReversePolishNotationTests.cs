@@ -1,5 +1,6 @@
 using Calculator.Common.Function;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -14,74 +15,62 @@ namespace Calculator.Common.Tests.Function
             Assert.Equal("formula", ex.ParamName);
         }
 
-        [Fact]
-        public void ConvertNormalFormula1()
+        [Theory]
+        [MemberData(nameof(ConvertNormalFormulaData))]
+        public void ConvertNormalFormula(string formula, IEnumerable<string> expected)
         {
-            var result = ReversePolishNotation.Convert("11+234");
-            Assert.Equal(new[] { "11", "234", "+" }, result);
+            var result = ReversePolishNotation.Convert(formula);
+            Assert.Equal(expected, result);
         }
 
-        [Fact]
-        public void ConvertNormalFormula2()
+        public static IEnumerable<object[]> ConvertNormalFormulaData()
         {
-            var result = ReversePolishNotation.Convert("11+234*ab56");
-            Assert.Equal(new[] { "11", "234", "ab56", "*", "+" }, result);
+            yield return new object[]
+            {
+                "11+234",
+                new string[] { "11", "234", "+" }
+            };
+
+            yield return new object[]
+            {
+                "11+234*ab56",
+                new string[] { "11", "234", "ab56", "*", "+" }
+            };
+
+            yield return new object[]
+            {
+                "11--234*ab56",
+                new string[] { "11", "234", "-@", "ab56", "*", "-" }
+            };
+
+            yield return new object[]
+            {
+                "11*(234-ab56)*7",
+                new string[] { "11", "234", "ab56", "-", "*", "7", "*" }
+            };
+
+            yield return new object[]
+            {
+                "11*((234-ab56)*7)",
+                new string[] { "11", "234", "ab56", "-", "7", "*", "*" }
+            };
         }
 
-        [Fact]
-        public void ConvertNormalFormula3()
+        [Theory]
+        [MemberData(nameof(ConvertInvalidFormulaData))]
+        public void ConvertInvalidFormula(string formula)
         {
-            var result = ReversePolishNotation.Convert("11--234*ab56");
-            Assert.Equal(new[] { "11", "234", "-@", "ab56", "*", "-" }, result);
-        }
-
-        [Fact]
-        public void ConvertNormalFormula4()
-        {
-            var result = ReversePolishNotation.Convert("11*(234-ab56)*7");
-            Assert.Equal(new[] { "11", "234", "ab56", "-", "*", "7", "*" }, result);
-        }
-
-        [Fact]
-        public void ConvertNormalFormula5()
-        {
-            var result = ReversePolishNotation.Convert("11*((234-ab56)*7)");
-            Assert.Equal(new[] { "11", "234", "ab56", "-", "7", "*", "*" }, result);
-        }
-
-        [Fact]
-        public void ConvertInvalidFormula1()
-        {
-            var result = ReversePolishNotation.Convert("11+234a56");
+            var result = ReversePolishNotation.Convert(formula);
             Assert.Throws<FormatException>(() => result.ToList());
         }
 
-        [Fact]
-        public void ConvertInvalidFormula2()
+        public static IEnumerable<object[]> ConvertInvalidFormulaData()
         {
-            var result = ReversePolishNotation.Convert("11+++234");
-            Assert.Throws<FormatException>(() => result.ToList());
-        }
-
-        [Fact]
-        public void ConvertInvalidFormula3()
-        {
-            var result = ReversePolishNotation.Convert("11*(234-ab56*7");
-            Assert.Throws<FormatException>(() => result.ToList());
-        }
-
-        [Fact]
-        public void ConvertInvalidFormula4()
-        {
-            var result = ReversePolishNotation.Convert("11*((234-ab56)*7))");
-            Assert.Throws<FormatException>(() => result.ToList());
-        }
-
-        [Fact]
-        public void ConvertInvalidFormula5()
-        {
-            var result = ReversePolishNotation.Convert("11+234 56");
-            Assert.Throws<FormatException>(() => result.ToList());
+            yield return new object[] { "11+234a56" };
+            yield return new object[] { "11+++234" };
+            yield return new object[] { "11*(234-ab56*7" };
+            yield return new object[] { "11*((234-ab56)*7))" };
+            yield return new object[] { "11+234 56" };
         }
     }
 }
