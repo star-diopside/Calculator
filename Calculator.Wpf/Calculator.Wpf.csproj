@@ -8,11 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog.Config" Version="4.6.7" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.4" />
     <PackageReference Include="Prism.Unity" Version="7.2.0.1367" />
+    <PackageReference Include="Unity.Microsoft.Logging" Version="5.11.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Calculator.Wpf.Module\Calculator.Wpf.Module.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

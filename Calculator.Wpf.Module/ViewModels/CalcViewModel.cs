@@ -1,4 +1,5 @@
 ﻿using Calculator.Wpf.Module.Models;
+using Microsoft.Extensions.Logging;
 using Prism.Commands;
 using Reactive.Bindings;
 using System;
@@ -9,6 +10,7 @@ namespace Calculator.Wpf.Module.ViewModels
 {
     class CalcViewModel
     {
+        private readonly ILogger<CalcViewModel> _logger;
         private readonly CalcModel _model;
 
         /// <summary>入力式を示すプロパティを取得する。</summary>
@@ -26,8 +28,9 @@ namespace Calculator.Wpf.Module.ViewModels
         /// <summary>計算コマンドを取得する。</summary>
         public ICommand CalculateCommand { get; }
 
-        public CalcViewModel(CalcModel model)
+        public CalcViewModel(ILogger<CalcViewModel> logger, CalcModel model)
         {
+            _logger = logger;
             _model = model;
             AnalysisCommand = new DelegateCommand(Analysis);
             CalculateCommand = new DelegateCommand(Calculate);
@@ -39,8 +42,9 @@ namespace Calculator.Wpf.Module.ViewModels
             {
                 _model.Analysis();
             }
-            catch (FormatException)
+            catch (FormatException e)
             {
+                _logger.LogError(e, e.Message);
                 MessageBox.Show("数式の書式が不正です。", "解析エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
