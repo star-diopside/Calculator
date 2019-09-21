@@ -3,6 +3,7 @@ using Calculator.Wpf.Views;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Prism.Ioc;
+using Prism.Logging;
 using Prism.Modularity;
 using Prism.Unity;
 using System.Windows;
@@ -32,6 +33,7 @@ namespace Calculator.Wpf
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(new NLogLoggerProvider());
             containerRegistry.GetContainer().AddExtension(new LoggingExtension(loggerFactory));
+            containerRegistry.RegisterSingleton<ILoggerFacade, PrismLogger>();
         }
 
         private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
