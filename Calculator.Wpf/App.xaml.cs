@@ -1,11 +1,12 @@
 ﻿using Calculator.Wpf.Module;
 using Calculator.Wpf.Views;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Prism.Ioc;
-using Prism.Logging;
 using Prism.Modularity;
 using Prism.Unity;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using Unity;
@@ -30,10 +31,16 @@ namespace Calculator.Wpf
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            var loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(new NLogLoggerProvider());
-            containerRegistry.GetContainer().AddExtension(new LoggingExtension(loggerFactory));
-            containerRegistry.RegisterSingleton<ILoggerFacade, PrismLogger>();
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            containerRegistry.GetContainer().AddExtension(new LoggingExtension(LoggerFactory.Create(builder =>
+            {
+                builder.AddConfiguration(configuration.GetSection("Logging"))
+                       .AddNLog(new NLogLoggingConfiguration(configuration.GetSection("NLog")));
+            })));
         }
 
         private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
