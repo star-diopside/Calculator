@@ -1,15 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace Calculator.Wpf.Module.Views
+namespace Calculator.Wpf.Module.Views;
+
+/// <summary>
+/// CalcView.xaml の相互作用ロジック
+/// </summary>
+public partial class CalcView : UserControl
 {
-    /// <summary>
-    /// CalcView.xaml の相互作用ロジック
-    /// </summary>
-    public partial class CalcView : UserControl
+    public CalcView()
     {
-        public CalcView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

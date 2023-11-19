@@ -3,18 +3,17 @@ using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Regions;
 
-namespace Calculator.Wpf.Module
-{
-    public class CalculatorModule : IModule
-    {
-        public void OnInitialized(IContainerProvider containerProvider)
-        {
-            var regionManager = containerProvider.Resolve<IRegionManager>();
-            regionManager.RegisterViewWithRegion("MainContent", typeof(CalcView));
-        }
+namespace Calculator.Wpf.Module;
 
-        public void RegisterTypes(IContainerRegistry containerRegistry)
-        {
-        }
+public class CalculatorModule : IModule
+{
+    public void OnInitialized(IContainerProvider containerProvider)
+    {
+        var regionManager = containerProvider.Resolve<IRegionManager>();
+        regionManager.RegisterViewWithRegion("MainContent", typeof(CalcView));
+    }
+
+    public void RegisterTypes(IContainerRegistry containerRegistry)
+    {
     }
 }

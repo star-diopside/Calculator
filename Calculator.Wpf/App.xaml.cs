@@ -12,42 +12,41 @@ using System.Windows.Threading;
 using Unity;
 using Unity.Microsoft.Logging;
 
-namespace Calculator.Wpf
+namespace Calculator.Wpf;
+
+/// <summary>
+/// App.xaml の相互作用ロジック
+/// </summary>
+public partial class App : PrismApplication
 {
-    /// <summary>
-    /// App.xaml の相互作用ロジック
-    /// </summary>
-    public partial class App : PrismApplication
+    protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
     {
-        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
-        {
-            moduleCatalog.AddModule<CalculatorModule>();
-        }
+        moduleCatalog.AddModule<CalculatorModule>();
+    }
 
-        protected override Window CreateShell()
-        {
-            return Container.Resolve<MainWindow>();
-        }
+    protected override Window CreateShell()
+    {
+        return Container.Resolve<MainWindow>();
+    }
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry)
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
+    protected override void RegisterTypes(IContainerRegistry containerRegistry)
+    {
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
 
-            containerRegistry.GetContainer().AddExtension(new LoggingExtension(LoggerFactory.Create(builder =>
-            {
-                builder.AddConfiguration(configuration.GetSection("Logging"))
-                       .AddNLog(new NLogLoggingConfiguration(configuration.GetSection("NLog")));
-            })));
-        }
-
-        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        containerRegistry.GetContainer().AddExtension(new LoggingExtension(LoggerFactory.Create(builder =>
         {
-            Container.Resolve<ILogger<App>>().LogError(e.Exception, e.Exception.Message);
-            MessageBox.Show(e.Exception.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-            e.Handled = true;
-        }
+            builder.AddConfiguration(configuration.GetSection("Logging"))
+                   .AddNLog(new NLogLoggingConfiguration(configuration.GetSection("NLog")));
+        })));
+    }
+
+    private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        Container.Resolve<ILogger<App>>().LogError(e.Exception, e.Exception.Message);
+        MessageBox.Show(e.Exception.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+        e.Handled = true;
     }
 }
